@@ -12,6 +12,8 @@ change, not at release time.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-04
+
 First public release - an early version. While wiki-mcp is at 0.x, the
 configuration, tool names and tool parameters may still change in a minor
 release; such changes will be listed here.
