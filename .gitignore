@@ -1,0 +1,14 @@
+/bin/
+/dist/
+/data/
+*.test
+coverage.out
+*.yml.local
+.local/
+.tmp/
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store

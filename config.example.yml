@@ -1,0 +1,43 @@
+# wiki-mcp configuration. Required: server.public_url, wiki.engine, wiki.url.
+# Environment overrides: WIKI_MCP_PUBLIC_URL, WIKI_MCP_WIKI_URL, WIKI_MCP_WIKI_ENGINE, WIKI_MCP_ENCRYPTION_KEY.
+
+server:
+  # Base URL of this server as Claude reaches it (HTTPS, publicly reachable). The MCP endpoint, the URL users add
+  # as a connector, is public_url + /mcp; public_url is also the OAuth issuer. A path is allowed
+  # (https://example.com/wiki-mcp), the reverse proxy must then also route /.well-known/oauth-*/wiki-mcp... to it.
+  public_url: https://wiki-mcp.example.com
+
+wiki:
+  engine: xwiki                    # xwiki | dokuwiki
+  name: Company wiki               # shown on the sign-in page and in the tool descriptions
+  # base URL the server calls: XWiki with its context path (http://127.0.0.1:8080 for the Docker image,
+  # http://host:8080/xwiki for the WAR), DokuWiki the directory of doku.php
+  url: http://127.0.0.1:8080
+  public_url: https://wiki.example.com   # base of the page links given to users, default: url
+  timeout: 30s                     # per request to the wiki
+  # ca_file: /etc/ssl/certs/internal-ca.pem
+  # insecure_skip_verify: false
+  # secret_label: Password or token   # label of the password field (DokuWiki also accepts a token from the profile)
+  xwiki:
+    wiki: xwiki                    # main (sub)wiki, page IDs without "wiki:" are in it
+
+oauth:
+  data_dir: /var/lib/wiki-mcp      # wiki-mcp.db (sessions, registered clients) and the generated key
+  # Key encrypting the stored wiki credentials: 64 hex digits, base64 of 32 bytes or a random text of 32+
+  # characters. Default: <data_dir>/encryption.key, created when missing. WIKI_MCP_ENCRYPTION_KEY takes precedence.
+  # encryption_key_file: /var/lib/wiki-mcp/encryption.key
+  access_token_ttl: 1h
+  refresh_token_ttl: 720h          # a session unused this long ends
+  session_max_age: 2160h           # users sign in again after 90 days (0: never)
+  refresh_reuse_grace: 30s         # a refresh token used twice within this time is tolerated, later it revokes the session
+  dynamic_registration: true       # RFC 7591 for clients without a client ID metadata document
+  registered_client_ttl: 2160h     # registered clients unused this long are removed
+  # hosts client ID metadata documents are fetched from (default: claude.ai)
+  # client_metadata_hosts: [claude.ai]
+  # redirect URIs clients may use (default: Claude and Claude Code); "https://app.example.com/*" matches by prefix
+  # allowed_redirect_uris:
+  #   - https://claude.ai/api/mcp/auth_callback
+  #   - https://claude.com/api/mcp/auth_callback
+  #   - http://localhost/callback
+  #   - http://127.0.0.1/callback
+  trust_forwarded_for: false       # true behind a reverse proxy: the sign-in rate limit uses X-Forwarded-For
